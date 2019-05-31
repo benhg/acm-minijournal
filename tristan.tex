@@ -1,0 +1,125 @@
+\documentclass{article}
+
+
+\usepackage{arxiv}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{lipsum}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\setcounter{page}{12}
+\title{BUGS - A 2x2 RUBIK’S CUBE GOD SOLVER}
+
+
+\lstset{frame=tb,
+  language=PHP,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+
+\author{
+  Tristan Saldanha\\%\thanks{Use footnote for providing further
+    %information about author (webpage, alternative
+    %address)---\emph{not} for acknowledging funding agencies.} \\
+  Mathematics \& Computer Science Major\\
+  Lewis \& Clark College\\
+  Portland, OR 97219 \\
+  \texttt{quinnvinlove@lclark.edu} \\
+  %% examples of more authors
+   %\And
+ %Elias D.~Striatum \\
+  %Department of Electrical Engineering\\
+  %Mount-Sheikh University\\
+  %Santa Narimana, Levand \\
+  %\texttt{stariate@ee.mount-sheikh.edu} \\
+  %% \AND
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\a
+  %% \texttt{email} \\
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+For my final project in High Performance Computing, I of course wanted to pick a problem that was famously computationally expensive. I decided to write a solver for the most optimal solution to a 2x2x2 Rubik’s cube - a so called “God Solver”. The program works by simulating a brute-force list of all possible combinations of moves, testing them all, and returning the shortest sequence that solves the cube. 
+
+\end{abstract}
+
+
+% keywords can be removed
+\keywords{Computer Graphics \and OpenACC \and Parallel Programming 
+}
+
+
+\section{God's Number}
+God’s Number refers to the minimum number of moves in the most efficient possible solution to an arbitrary Rubik’s Cube. The term has been extended to refer to the general idea of the fastest solution to an arbitrary state of other puzzles, like the 15 puzzle and Towers of Hanoi. For the $3x3x3$ cube, God’s number is 20 face turns (a $180^{\cdot}$ rotation counting as one move), or 26 quarter turns ($180^{\cdot}$ counting as two moves). For the $2x2x2$ cube I wrote this program for, these numbers are 11 and 14, respectively.
+
+\section{Writing The Program}
+There were two major parts of this program, which I called rendering and simulation. The rendering part of the program was to write a model of a cube- I needed a way to hold the data of a cube, and how it would change if one of the 12 possible moves were applied to it. 
+
+Early on in the process I decided to write this program for a $2x2x2$ cube, rather than the more familiar $3x3x3$. This choice was made primarily due to the size of the computation- I did not believe that BLT, Lewis \& Clark’s compute cluster, would have been able to handle the full size of godsolving an arbitrary $3x3x3$. While this program could be lifted to solve a $3x3$ or $NxN$ cube with minimal changes to the internal logic, the $2x2$ problem can be solved several orders of magnitude faster than the $3x3$. 
+
+Each cube is a group of 6 arrays that hold all the color data on each side. The program includes 6 functions for the 6 counterclockwise rotations of each face, and 6 more functions of the clockwise rotations, which are simple loops to make 3 counterclockwise rotations. Each of these rotation functions changes the colors on the arrays of a cube in the proper way to mimic a model of a real cube. 
+
+The second part of this project was the simulation of possible solves. First, the program generates a randomly scrambled for a cube, to then attempt to solve. Next, the list of all possible move sequences is attempted on that cube, and checked for returning a solved state. If so, the program ends and the sequence is returned. The program first looks for 1 move solves, then 2, and onwards, so the shortest solutions are found first. 
+
+
+
+\section{Future Improvements/Optimizations}
+There are a few places this program could be improved; but the main issue is that there are some redundancies in both the scrambling and solving sequence generation. For example, if the same face is turned clockwise once then counterclockwise, this adds 2 moves to an “optimal solution”, while the optimal solution is 2 moves faster, omitting these two moves. The sequence generating part of the code could be optimized to remove redundant sequences, like the example above, or sequences that are identical (move right side than left side, versus left side then right side)
+
+
+%\bibliographystyle{unsrt}  
+%\bibliography{references}  %%% Remove comment to use the external .bib file (using bibtex).
+%%% and comment out the ``thebibliography'' section.
+
+
+%%% Comment out this section when you \bibliography{references} is enabled.
+%\begin{thebibliography}{1}
+
+%\bibitem{aaa}
+%Chapple, M.
+%\newblock Creating Databases and Tables in SQL
+%\newblock In {\em Life Wire, 2019}
+
+%\end{thebibliography}
+
+\section{Link to Code}
+Code is at \href{https://github.com/quin2/rayaccel}{https://github.com/quin2/rayaccel}
+\end{document}
